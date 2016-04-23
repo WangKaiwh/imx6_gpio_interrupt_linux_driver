@@ -72,18 +72,21 @@ static int vpu_pow_init(void)
     int ret = request_irq(VPU_POW_INT, vpu_pow_off_irq,
         IRQF_TRIGGER_FALLING, "vpu_pow_off_irq", NULL);
     if (ret)
-        return ret;
-
+        goto out1;
     ret = misc_register(&miscdev);
     if (ret)
-        return ret;
+        goto out2;
 
+out2:
+    free_irq(VPU_POW_INT, NULL);
+out1:
     return 0;
 }
 
 static void vpu_pow_exit(void)
 {
     misc_deregister(&miscdev);
+    free_irq(VPU_POW_INT, NULL);    
 }
 
 module_init(vpu_pow_init);
